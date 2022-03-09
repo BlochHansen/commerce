@@ -1,0 +1,16 @@
+body {
+    padding: 10px;
+}
+
+.pst {
+    font-size: 1.5em;
+}
+
+.card {
+    margin-bottom: 0.5rem;
+}
+
+.card-header {
+    padding-bottom: 0.2rem;
+
+}

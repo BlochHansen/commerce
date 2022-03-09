@@ -1,0 +1,178 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+
+    <div class="container-xl">
+        <div class="row">
+            <div class="col">
+                <h2>Listing: {{ list.title }}</h2>
+                
+                {% if user.is_authenticated %}
+                    <form action="{% url 'watchlist' list.id %}" method="post">
+                        {% csrf_token %}
+                        <div>
+                            <!-- Opretter list til watch databasen -->
+                            <select hidden name="list"  required id="id_list">
+                                <option value="{{ list.id }}" selected>{{ list.title }}</option>
+                            </select>
+                        </div>
+                        <div>
+                            <!-- Opretter user til watch databasen -->
+                            <select hidden name="user"  required id="id_user">
+                                <option value="{{ user.id }}" selected>{{ user.username }}</option>
+                            </select>
+                        </div>
+                        {% if user.id in w_users %}
+                            <div>
+                                <!-- Funktion remove -->
+                                <input hidden type="text" name="funktion" value="remove">    
+                            </div>
+                            <button class="btn btn-primary" type="submit">Watchlist  <span class="badge badge-secondary">remove</span></button>
+                            
+                        {% else %}
+                            <div>
+                                <!-- Funktion add -->
+                                <input hidden type="text" name="funktion" value="add" >    
+                            </div>
+                            <button class="btn btn-primary" type="submit">Watchlist  <span class="badge badge-info">add</span></button>
+                        {% endif %}
+                    </form>
+                {% endif %}
+                
+                <div>
+                    <img src="{{ list.image.url }}" alt="No Photo" style="Height:400px;">
+                </div>
+                
+                {% if list.descript %}
+                            <p class="card-text font-weight-bold">{{ list.descript }}</p>
+                {% endif %}
+
+
+                
+                <p class="font-weight-bold" style="font-size:125%;">${{ list.price }}</p>
+    
+                
+                {# Hvis listing er solgt, så skrives det her  #}
+                {% if list.status == 'sold' %}
+                    <h2>Sold</h2>
+                    {% if bid_user == user.id %}
+                            <h3>Sold to:  {{ user.username }}</h3>
+                    {% endif %}
+                {% else %}
+                    {% if bids_all == 0 %}
+                        <div>No bids so far</div>
+                    {% else %}
+                        <div>{{ bids_all }} bid{{ bids_all|pluralize}} so far.
+                            {% if bid_user == user.id %}
+                                Your  bid is the current bid
+                            {% endif %}
+                        </div>
+                    {% endif %}
+
+                    {% if message_bid %}
+                        <h4>{{ message_bid }}</h4>
+                    {% endif %}
+                   
+                    {# HVIS USER EJER LISTING, SKAL DER VÆRE EN ACCEPT FORM ELLERS EN BID FORM #}
+                    {% if user.id == list.owner.id %}
+                        {% if bids_all %}
+                            <form action="{% url 'acceptBid' list.id %}" method="post">
+                                {% csrf_token %}
+                                <div>
+                                    <!-- Opretter list til bid databasen -->
+                                    <select hidden name="list"  required id="id_list">
+                                        <option value="{{ list.id }}" selected>{{ list.title }}</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <!-- Opretter user til bid databasen -->
+                                    <select hidden name="user"  required id="id_user">
+                                        <option value="{{ user.id }}" selected>{{ user.username }}</option>
+                                    </select>
+                                </div>
+                                <input class="btn btn-primary" type="submit" value="Accept Bid">
+                            </form>
+                        {% endif %}
+                    {% else %}
+                        <form action="{% url 'addBid' list.id %}" method="post">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <input class="form-control" type="text" name="bid" placeholder="Bid">
+                            </div>
+                            <div>
+                                <!-- Opretter list til bid databasen -->
+                                <select hidden name="list"  required id="id_list">
+                                    <option value="{{ list.id }}" selected>{{ list.title }}</option>
+                                </select>
+                            </div>
+                            <div>
+                                <!-- Opretter user til bid databasen -->
+                                <select hidden name="user"  required id="id_user">
+                                    <option value="{{ user.id }}" selected>{{ user.username }}</option>
+                                </select>
+                            </div>
+                            <input class="btn btn-primary" type="submit" value="Place Bid">
+                        </form>
+                    {% endif %}
+                {% endif %}
+                <br>
+                <h4>Details</h4>
+                <ul>
+                    <li>Listed by:  {{ list.owner }}</li>
+                    <li>Category: 
+                        {% if list.get_category_display %}
+                            {{ list.get_category_display }}
+                        {% else %}
+                            No Category Listed
+                        {% endif %}
+                    </li>
+                </ul>
+            
+                {# HER ER DER KOMMENTAR #}
+                <div>
+                    <h5>Comments</h5>
+                    {% for item in lComment %}
+                        <div class="card border-primary"  style="width: 40rem; ">
+                            <div class="card-header font-weight-bold">
+                                {{ item.user }}
+                            </div>
+                            <div class="card-body">
+                                <p class="card-text" style="margin-top: -0.75rem;">{{ item.comment }}</p>
+                            </div>
+                        </div>
+                    {% endfor %}
+
+                    {% if message_comment %}
+                        <h4>{{ message_comment }}</h4>
+                    {% endif %}
+
+
+                    
+                    <form action="{% url 'addComment' list.id %}" method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <input class="form-control" type="text" name="comment" placeholder="New Comment">
+                        </div>
+                        <div>
+                            <!-- Opretter list til comment databasen -->
+                            <select hidden name="list"  required id="id_list">
+                                <option value="{{ list.id }}" selected>{{ list.title }}</option>
+                            </select>
+                        </div>
+                        <div>
+                            <!-- Opretter user til comment databasen -->
+                            <select hidden name="user"  required id="id_user">
+                                <option value="{{ user.id }}" selected>{{ user.username }}</option>
+                            </select>
+                        </div>
+                        <input class="btn btn-primary" type="submit" value="Add Comment">
+                    </form>
+                  
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+
+{% endblock %}

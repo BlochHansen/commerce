@@ -1,0 +1,29 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h2>{{ listtype }}</h2>
+    {% for list in listings %}
+        <div class="border border-dark rounded shadow p-3 mb-5 bg-white rounded">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm">
+                        <a href="{% url 'listing' list.id  %}">
+                            <img src="{{ list.image.url }}" alt="No Photo" style="Height:225px;">
+                        </a>
+                    </div>
+                    <div class="col-sm">
+                        <a href="{% url 'listing' list.id  %}">
+                            <p class="font-weight-bold pst">{{ list.title }}</p>
+                        </a>
+                        <p class="font-weight-bold">Price: ${{ list.price }}</p>
+                        {% if list.descript %}
+                            <p class="font-weight-bold">{{ list.descript }}</p>
+                        {% endif %}
+                        <p class="text-secondary">Created {{ list.created }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+
+{% endblock %}
